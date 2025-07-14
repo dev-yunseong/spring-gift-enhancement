@@ -1,7 +1,7 @@
 package gift.repository;
 
-import gift.entity.Product;
-import gift.entity.Wish;
+import gift.domain.Product;
+import gift.domain.Wish;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 

@@ -2,7 +2,7 @@ package gift.controller;
 
 import gift.dto.ProductRequestDto;
 import gift.dto.ProductResponseDto;
-import gift.entity.Product;
+import gift.domain.Product;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;

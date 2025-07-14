@@ -1,6 +1,6 @@
 package gift.dto;
 
-import gift.entity.Product;
+import gift.domain.Product;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Length;

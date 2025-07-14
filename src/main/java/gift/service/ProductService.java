@@ -3,7 +3,7 @@ package gift.service;
 import gift.dto.ProductRequestDto;
 import gift.dto.ProductResponseDto;
 import gift.dto.ProductStatusPatchRequestDto;
-import gift.entity.Product;
+import gift.domain.Product;
 import gift.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

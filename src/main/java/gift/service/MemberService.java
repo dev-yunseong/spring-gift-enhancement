@@ -1,7 +1,7 @@
 package gift.service;
 
 import gift.dto.MemberRequestDto;
-import gift.entity.Member;
+import gift.domain.Member;
 import gift.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

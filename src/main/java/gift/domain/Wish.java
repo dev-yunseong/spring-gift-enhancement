@@ -1,4 +1,4 @@
-package gift.entity;
+package gift.domain;
 
 public class Wish {
     private int count;

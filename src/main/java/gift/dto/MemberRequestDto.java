@@ -1,6 +1,6 @@
 package gift.dto;
 
-import gift.entity.Member;
+import gift.domain.Member;
 import jakarta.validation.constraints.Email;
 
 public record MemberRequestDto(
