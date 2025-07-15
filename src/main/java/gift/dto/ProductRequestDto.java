@@ -13,7 +13,7 @@ public record ProductRequestDto(
         @Min(0) Integer price,
         @Length(max = 255) String imageUrl) {
 
-    public Product toEntity() {
+    public Product toDomain() {
         return new Product(name, price, imageUrl);
     }
 }
