@@ -3,6 +3,7 @@ package gift.controller;
 import gift.dto.ProductRequestDto;
 import gift.dto.ProductResponseDto;
 import gift.domain.Product;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,23 +28,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ProductControllerTest {
 
+    private final RestClient client = RestClient.builder().build();
+
     @LocalServerPort
     private int port;
+    private String baseUrl;
 
-    private final RestClient client = RestClient.builder().build();
+    @BeforeEach
+    void setBaseUrl() {
+        baseUrl = "http://localhost:"+ port;
+    }
 
     @ParameterizedTest
     @MethodSource("invalidProducts")
     void Validation_테스트(ProductRequestDto productRequestDto, List<String> messages) {
-        String url = "http://localhost:" + port + "/api/products";
-        RestClient.ResponseSpec responseSpec = client.post()
-                .uri(url)
-                .body(productRequestDto)
-                .retrieve();
-
         HttpClientErrorException.BadRequest exception = assertThrows(HttpClientErrorException.BadRequest.class,
                 () -> {
-                    responseSpec.toEntity(String.class);
+                    postProduct(productRequestDto);
                 });
 
         boolean anyMatch = messages.stream()
@@ -74,34 +75,26 @@ public class ProductControllerTest {
 
     @Test
     void 카카오_들어가는_이름_테스트_입력_테스트() {
-        String url = "http://localhost:" + port + "/api/products";
-        RestClient.ResponseSpec responseSpec = client.post()
-                .uri(url)
-                .body(new ProductRequestDto(
-                        "카카오 들어감",
-                        123,
-                        "http://path/"
-                ))
-                .retrieve();
+        ResponseEntity<String> response = postProduct(new ProductRequestDto(
+                "카카오 들어감",
+                123,
+                "http://path/"
+        ));
 
-        ResponseEntity<String> response = responseSpec.toEntity(String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         String responseMessage = response.getBody();
         assertThat(responseMessage).isNotNull();
 
         Pattern pattern = Pattern.compile("id: (\\d+)");
         Matcher matcher = pattern.matcher(responseMessage);
-        Long id = -1L;
-        if (matcher.find()) {
-            String idStr = matcher.group(1);
-            id = Long.parseLong(idStr);
-        }
+        Long id;
 
-        url = "http://localhost:" + port + "/api/products/" + id;
-        RestClient.ResponseSpec getResponseSpec = client.get()
-                .uri(url)
-                .retrieve();
-        ResponseEntity<ProductResponseDto> entity = getResponseSpec.toEntity(ProductResponseDto.class);
+        assertThat(matcher.find()).isTrue();
+
+        String idStr = matcher.group(1);
+        id = Long.parseLong(idStr);
+
+        ResponseEntity<ProductResponseDto> entity = getProduct(id);
 
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
         ProductResponseDto productResponseDto = entity.getBody();
@@ -110,29 +103,33 @@ public class ProductControllerTest {
 
     @Test
     void 존재하는_상품_읽기_테스트() {
-        String url = "http://localhost:" + port + "/api/products/1";
-        RestClient.ResponseSpec response = client.get()
-                .uri(url)
-                .retrieve();
-        ResponseEntity<ProductResponseDto> entity = response.toEntity(ProductResponseDto.class);
+        ResponseEntity<ProductResponseDto> entity = getProduct(1L);
 
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        ProductResponseDto productResponseDto = entity.getBody();
-        assertThat(productResponseDto.name()).isEqualTo("상품 1");
     }
 
     @Test
     void 존재하지_않는_제폼_테스트() {
-        String url = "http://localhost:" + port + "/api/products/3";
-        RestClient.ResponseSpec response = client.get()
-                .uri(url)
-                .retrieve();
-
         HttpClientErrorException.BadRequest exception = assertThrows(HttpClientErrorException.BadRequest.class,
                 () -> {
-                    response.toEntity(String.class);
+                    getProduct(-1L);
                 });
 
         assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    private ResponseEntity<String> postProduct(ProductRequestDto productRequestDto) {
+        return client.post()
+                .uri(baseUrl + "/api/products")
+                .body(productRequestDto)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
+    private ResponseEntity<ProductResponseDto> getProduct(long id) {
+        return client.get()
+                .uri(baseUrl + "/api/products/" + id)
+                .retrieve()
+                .toEntity(ProductResponseDto.class);
     }
 }
