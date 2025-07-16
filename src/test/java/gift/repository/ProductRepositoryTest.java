@@ -36,7 +36,7 @@ public class ProductRepositoryTest {
         ProductEntity productEntity = new ProductEntity(null,"name", 1, "/path/", Product.Status.PENDING);
         productRepository.save(productEntity);
 
-        Optional<ProductEntity> optionalMemberEntity = productRepository.findProductById(productEntity.getId());
+        Optional<ProductEntity> optionalMemberEntity = productRepository.findById(productEntity.getId());
 
         assertAll(
                 () -> assertThat(optionalMemberEntity.isPresent()).isTrue(),
@@ -51,11 +51,11 @@ public class ProductRepositoryTest {
     @Test
     void deleteTest() {
         ProductEntity productEntity = new ProductEntity(null,"name", 1, "/path/", Product.Status.PENDING);
-        productEntity = productRepository.save(productEntity);
+        ProductEntity savedProductEntity = productRepository.save(productEntity);
 
-        productRepository.deleteProductById(productEntity.getId());
+        productRepository.deleteById(savedProductEntity.getId());
 
-        Optional<ProductEntity> optionalProductEntity = productRepository.findProductById(productEntity.getId());
+        Optional<ProductEntity> optionalProductEntity = productRepository.findById(savedProductEntity.getId());
         assertAll(
                 () -> assertThat(optionalProductEntity.isEmpty()).isTrue()
         );

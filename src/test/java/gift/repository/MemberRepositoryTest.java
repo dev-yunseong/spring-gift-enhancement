@@ -34,7 +34,7 @@ public class MemberRepositoryTest {
         MemberEntity memberEntity = new MemberEntity(null, email, "password");
         memberRepository.save(memberEntity);
 
-        Optional<MemberEntity> optionalMemberEntity = memberRepository.findMemberByEmail(email);
+        Optional<MemberEntity> optionalMemberEntity = memberRepository.findByEmail(email);
 
         assertAll(
                 () -> assertThat(optionalMemberEntity.isPresent()).isTrue(),
@@ -46,9 +46,9 @@ public class MemberRepositoryTest {
     void findByIdTest() {
         String email = "memberFindByEmail@demo";
         MemberEntity memberEntity = new MemberEntity(null, email, "password");
-        memberEntity = memberRepository.save(memberEntity);
+        MemberEntity savedMemberEntity = memberRepository.save(memberEntity);
 
-        Optional<MemberEntity> optionalMemberEntity = memberRepository.findMemberById(memberEntity.toDomain().getId());
+        Optional<MemberEntity> optionalMemberEntity = memberRepository.findById(savedMemberEntity.toDomain().getId());
 
         assertAll(
                 () -> assertThat(optionalMemberEntity.isPresent()).isTrue(),
