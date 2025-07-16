@@ -18,33 +18,37 @@ public class ProductEntity {
     @Column(nullable = false, length = 15)
     private String name;
 
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+        return name;
     }
 
     @Column(nullable = false)
     private int price;
 
-    public void setPrice(int price) {
-        this.price = price;
+    public int getPrice() {
+        return price;
     }
 
     @Column(nullable = false, length = 255)
     private String imageUrl;
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
     @Column(nullable = false)
     private Product.Status status;
 
-    public void setStatus(Product.Status status) {
-        this.status = status;
+    public Product.Status getStatus() {
+        return status;
     }
 
     public Product toDomain() {
         return new Product(id, name, price, imageUrl, status);
+    }
+
+    public boolean isApproved() {
+        return status == Product.Status.APPROVED;
     }
 
     protected ProductEntity() {}
@@ -58,6 +62,17 @@ public class ProductEntity {
         this.name = name;
         this.price = price;
         this.imageUrl = imageUrl;
+        this.status = status;
+    }
+
+    public void updateProduct(Product product) {
+        this.name = product.getName();
+        this.price = product.getPrice();
+        this.imageUrl = product.getImageUrl();
+        this.status = product.getStatus();
+    }
+
+    public void updateStatus(Product.Status status) {
         this.status = status;
     }
 }

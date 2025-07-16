@@ -34,10 +34,6 @@ public class Product {
         return status;
     }
 
-    public boolean isApproved() {
-        return status == Status.APPROVED;
-    }
-
     public Product(String name, int price, String imageUrl) {
         this(null, name, price, imageUrl);
     }

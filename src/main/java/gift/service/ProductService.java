@@ -24,31 +24,28 @@ public class ProductService {
     public Long saveProduct(ProductRequestDto productRequestDto) {
         Product product = productRequestDto.toDomain();
         ProductEntity productEntity = new ProductEntity(product);
-        productEntity = productRepository.save(productEntity);
+        ProductEntity savedProductEntity = productRepository.save(productEntity);
 
-        return productEntity.getId();
+        return savedProductEntity.getId();
     }
 
     public void deleteProductById(Long id) {
-        productRepository.deleteProductById(id);
+        productRepository.deleteById(id);
     }
 
     public void updateProduct(Long id, ProductRequestDto productRequestDto) {
-        ProductEntity productEntity = productRepository.findProductById(id)
+        ProductEntity productEntity = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product Not Found"));
 
         Product product = productRequestDto.toDomain();
-        productEntity.setName(product.getName());
-        productEntity.setPrice(product.getPrice());
-        productEntity.setImageUrl(product.getImageUrl());
-        productEntity.setStatus(product.getStatus());
+
+        productEntity.updateProduct(product);
     }
 
     @Transactional(readOnly = true)
     public List<ProductResponseDto> findApprovedProducts() {
         return productRepository.findAll().stream()
-                .map(ProductEntity::toDomain)
-                .filter(Product::isApproved)
+                .filter(ProductEntity::isApproved)
                 .map(ProductResponseDto::new)
                 .toList();
     }
@@ -56,23 +53,21 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<ProductResponseDto> findAllProducts() {
         return productRepository.findAll().stream()
-                .map(ProductEntity::toDomain)
                 .map(ProductResponseDto::new)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public ProductResponseDto findProductById(Long id) {
-        return productRepository.findProductById(id)
-                .map(ProductEntity::toDomain)
+        return productRepository.findById(id)
                 .map(ProductResponseDto::new)
                 .orElseThrow(() -> new IllegalArgumentException("Product Not Found"));
     }
 
     public void updateProductStatus(Long productId, ProductStatusPatchRequestDto statusPatchRequestDto) {
-        ProductEntity productEntity = productRepository.findProductById(productId)
+        ProductEntity productEntity = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product Not Found"));
 
-        productEntity.setStatus(statusPatchRequestDto.status());
+        productEntity.updateStatus(statusPatchRequestDto.status());
     }
 }
