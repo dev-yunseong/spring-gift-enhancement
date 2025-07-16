@@ -24,7 +24,7 @@ public class Member {
     }
 
     public Member(String email, String password) {
-        this.id = -1L;
+        this.id = null;
         this.email = email;
         this.passwordHash = BCrypt.hashpw(
                 password,

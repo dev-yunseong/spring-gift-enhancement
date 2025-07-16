@@ -4,6 +4,7 @@ import gift.dto.ProductRequestDto;
 import gift.dto.ProductResponseDto;
 import gift.dto.ProductStatusPatchRequestDto;
 import gift.domain.Product;
+import gift.entity.ProductEntity;
 import gift.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,48 +22,52 @@ public class ProductService {
     }
 
     public Long saveProduct(ProductRequestDto productRequestDto) {
-        return productRepository.saveProduct(
-                productRequestDto.toEntity()
-        );
+        Product product = productRequestDto.toDomain();
+        ProductEntity productEntity = new ProductEntity(product);
+        ProductEntity savedProductEntity = productRepository.save(productEntity);
+
+        return savedProductEntity.getId();
     }
 
     public void deleteProductById(Long id) {
-        productRepository.deleteProductById(id);
+        productRepository.deleteById(id);
     }
 
-    public void updateProduct(Long id, ProductRequestDto productUpdateDto) {
-        productRepository.updateProduct(
-                new Product(
-                        id,
-                        productUpdateDto.name(),
-                        productUpdateDto.price(),
-                        productUpdateDto.imageUrl())
-        );
+    public void updateProduct(Long id, ProductRequestDto productRequestDto) {
+        ProductEntity productEntity = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Product Not Found"));
+
+        Product product = productRequestDto.toDomain();
+
+        productEntity.updateProduct(product);
     }
 
     @Transactional(readOnly = true)
     public List<ProductResponseDto> findApprovedProducts() {
-        return productRepository.findAllProducts().stream()
-                .filter(Product::isApproved)
+        return productRepository.findAll().stream()
+                .filter(ProductEntity::isApproved)
                 .map(ProductResponseDto::new)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public List<ProductResponseDto> findAllProducts() {
-        return productRepository.findAllProducts().stream()
+        return productRepository.findAll().stream()
                 .map(ProductResponseDto::new)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public ProductResponseDto findProductById(Long id) {
-        return productRepository.findProductById(id)
+        return productRepository.findById(id)
                 .map(ProductResponseDto::new)
-                .orElseThrow(() -> new IllegalArgumentException("Not Found by id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Product Not Found"));
     }
 
     public void updateProductStatus(Long productId, ProductStatusPatchRequestDto statusPatchRequestDto) {
-        productRepository.updateStatus(productId, statusPatchRequestDto.status());
+        ProductEntity productEntity = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product Not Found"));
+
+        productEntity.updateStatus(statusPatchRequestDto.status());
     }
 }

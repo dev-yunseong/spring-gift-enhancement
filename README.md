@@ -1,5 +1,7 @@
 # spring-gift-enhancement
-> 기본 코드 준비
+> 엔티티 매핑
 ## 기능 요구 사항
-* 프로젝트 코드 초기화
-* 이전 코드 리뷰 반영
+* JPA를 사용하도록 수정
+  * Entity 구현
+  * JpaRepository로 수정
+  * Service 제대로 작동하도록 수정

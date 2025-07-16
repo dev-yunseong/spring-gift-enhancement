@@ -9,6 +9,11 @@ spring:
   h2:
     console:
       enabled: true
+  jpa:
+    properties:
+      hibernate:
+        format-sql: true
+    show-sql: true
   sql:
     init:
       schema-locations: classpath:static/sql/schema.sql

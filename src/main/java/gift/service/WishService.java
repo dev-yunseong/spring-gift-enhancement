@@ -2,6 +2,11 @@ package gift.service;
 
 import gift.dto.ProductResponseDto;
 import gift.dto.WishResponseDto;
+import gift.entity.MemberEntity;
+import gift.entity.ProductEntity;
+import gift.entity.WishEntity;
+import gift.repository.MemberRepository;
+import gift.repository.ProductRepository;
 import gift.repository.WishRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,9 +18,13 @@ import java.util.List;
 public class WishService {
 
     public final WishRepository wishRepository;
+    public final ProductRepository productRepository;
+    public final MemberRepository memberRepository;
 
-    public WishService(WishRepository wishRepository) {
+    public WishService(WishRepository wishRepository, ProductRepository productRepository, MemberRepository memberRepository) {
         this.wishRepository = wishRepository;
+        this.productRepository = productRepository;
+        this.memberRepository = memberRepository;
     }
 
     public void saveWish(long memberId, long productId, int count) {
@@ -23,27 +32,43 @@ public class WishService {
             return;
         }
 
-        wishRepository.saveWish(memberId, productId, count);
+        if (wishRepository.findWishesByMemberEntityIdAndProductEntityId(memberId, productId).isPresent()) {
+            throw new IllegalArgumentException("Wish is Already Existed");
+        }
+
+        MemberEntity memberEntity = memberRepository.findById(memberId)
+                        .orElseThrow(() -> new IllegalArgumentException("Member Not Found"));
+        ProductEntity productEntity = productRepository.findById(productId)
+                        .orElseThrow(() -> new IllegalArgumentException("Product Not Found"));
+        WishEntity wishEntity = new WishEntity(count, memberEntity, productEntity);
+
+        wishRepository.save(wishEntity);
     }
 
     public void updateWishCount(long memberId, long productId, int count) {
+        WishEntity wishEntity = wishRepository.findWishesByMemberEntityIdAndProductEntityId(memberId, productId)
+                .orElseThrow(() -> new IllegalArgumentException("Wish Not Found"));
+
         if (count == 0) {
-            wishRepository.deleteWish(memberId, productId);
+            wishRepository.delete(wishEntity);
             return;
         }
 
-        wishRepository.updateWishCount(memberId, productId, count);
+        wishEntity.updateWishCount(count);
     }
 
     @Transactional(readOnly = true)
     public List<WishResponseDto> getWishList(long memberId) {
-        return wishRepository.getWishProductsByMemberId(memberId)
+        MemberEntity memberEntity = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member Not Found"));
+
+        return memberEntity.getWishEntities()
                 .stream().map(
                     wish ->
                         new WishResponseDto(
                                 wish.getCount(),
                                 new ProductResponseDto(
-                                        wish.getProduct()
+                                        wish.getProductEntity().toDomain()
                                 )
                         )
                 ).toList();

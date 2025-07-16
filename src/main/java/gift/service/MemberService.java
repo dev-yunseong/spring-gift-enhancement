@@ -2,6 +2,7 @@ package gift.service;
 
 import gift.dto.MemberRequestDto;
 import gift.domain.Member;
+import gift.entity.MemberEntity;
 import gift.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,32 +18,32 @@ public class MemberService {
     }
 
     public Member getMember(long memberId) {
-        return memberRepository.findMemberById(memberId)
+        MemberEntity memberEntity = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Member 입니다."));
+
+        return memberEntity.toDomain();
     }
 
     public Member creatMember(MemberRequestDto memberRequestDto) {
-        Member member = memberRequestDto.toDomain();
 
-        if (memberRepository.findMemberByEmail(memberRequestDto.email()).isPresent()){
+        if (memberRepository.findByEmail(memberRequestDto.email()).isPresent()){
             throw new IllegalArgumentException("email이 중복 됩니다.");
         }
 
-        long id = memberRepository.saveMember(
-                        member)
-                .orElseThrow(() -> new IllegalArgumentException("Member를 생성할 수 없습니다."))
-                .longValue();
+        Member member = memberRequestDto.toDomain();
+        MemberEntity memberEntity = new MemberEntity(member);
+        MemberEntity savedMemberEntity = memberRepository.save(memberEntity);
 
-        return new Member(
-                id,
-                memberRequestDto.email(),
-                memberRequestDto.password());
+        return savedMemberEntity.toDomain();
     }
 
     @Transactional(readOnly = true)
     public Member login(MemberRequestDto memberRequestDto) {
-        Member member = memberRepository.findMemberByEmail(memberRequestDto.email())
+        MemberEntity memberEntity = memberRepository.findByEmail(memberRequestDto.email())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 멤버입니다."));
+
+        Member member = memberEntity.toDomain();
+
         if (!member.validatePlainPassword(memberRequestDto.password())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
