@@ -1,6 +1,5 @@
 package gift.service;
 
-import gift.domain.Member;
 import gift.dto.ProductResponseDto;
 import gift.dto.WishResponseDto;
 import gift.entity.MemberEntity;
@@ -33,9 +32,13 @@ public class WishService {
             return;
         }
 
-        MemberEntity memberEntity = memberRepository.findMemberById(memberId)
+        if (wishRepository.findWishesByMemberEntityIdAndProductEntityId(memberId, productId).isPresent()) {
+            throw new IllegalArgumentException("Wish is Already Existed");
+        }
+
+        MemberEntity memberEntity = memberRepository.findById(memberId)
                         .orElseThrow(() -> new IllegalArgumentException("Member Not Found"));
-        ProductEntity productEntity = productRepository.findProductById(productId)
+        ProductEntity productEntity = productRepository.findById(productId)
                         .orElseThrow(() -> new IllegalArgumentException("Product Not Found"));
         WishEntity wishEntity = new WishEntity(count, memberEntity, productEntity);
 
@@ -43,7 +46,7 @@ public class WishService {
     }
 
     public void updateWishCount(long memberId, long productId, int count) {
-        WishEntity wishEntity = wishRepository.findWishesByMemberEntity_IdAndProductEntity_Id(memberId, productId)
+        WishEntity wishEntity = wishRepository.findWishesByMemberEntityIdAndProductEntityId(memberId, productId)
                 .orElseThrow(() -> new IllegalArgumentException("Wish Not Found"));
 
         if (count == 0) {
@@ -51,12 +54,12 @@ public class WishService {
             return;
         }
 
-        wishEntity.setCount(count);
+        wishEntity.updateWishCount(count);
     }
 
     @Transactional(readOnly = true)
     public List<WishResponseDto> getWishList(long memberId) {
-        MemberEntity memberEntity = memberRepository.findMemberById(memberId)
+        MemberEntity memberEntity = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Member Not Found"));
 
         return memberEntity.getWishEntities()

@@ -18,7 +18,7 @@ public class MemberService {
     }
 
     public Member getMember(long memberId) {
-        MemberEntity memberEntity = memberRepository.findMemberById(memberId)
+        MemberEntity memberEntity = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Member 입니다."));
 
         return memberEntity.toDomain();
@@ -26,20 +26,20 @@ public class MemberService {
 
     public Member creatMember(MemberRequestDto memberRequestDto) {
 
-        if (memberRepository.findMemberByEmail(memberRequestDto.email()).isPresent()){
+        if (memberRepository.findByEmail(memberRequestDto.email()).isPresent()){
             throw new IllegalArgumentException("email이 중복 됩니다.");
         }
 
         Member member = memberRequestDto.toDomain();
         MemberEntity memberEntity = new MemberEntity(member);
-        memberEntity = memberRepository.save(memberEntity);
+        MemberEntity savedMemberEntity = memberRepository.save(memberEntity);
 
-        return memberEntity.toDomain();
+        return savedMemberEntity.toDomain();
     }
 
     @Transactional(readOnly = true)
     public Member login(MemberRequestDto memberRequestDto) {
-        MemberEntity memberEntity = memberRepository.findMemberByEmail(memberRequestDto.email())
+        MemberEntity memberEntity = memberRepository.findByEmail(memberRequestDto.email())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 멤버입니다."));
 
         Member member = memberEntity.toDomain();

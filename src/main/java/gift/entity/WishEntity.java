@@ -13,7 +13,7 @@ public class WishEntity {
     @Column
     private int count;
 
-    public void setCount(int count) {
+    public void updateWishCount(int count) {
         this.count = count;
     }
 
