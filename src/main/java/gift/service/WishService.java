@@ -8,6 +8,7 @@ import gift.entity.WishEntity;
 import gift.repository.MemberRepository;
 import gift.repository.ProductRepository;
 import gift.repository.WishRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,19 +59,17 @@ public class WishService {
     }
 
     @Transactional(readOnly = true)
-    public List<WishResponseDto> getWishList(long memberId) {
-        MemberEntity memberEntity = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member Not Found"));
-
-        return memberEntity.getWishEntities()
-                .stream().map(
-                    wish ->
-                        new WishResponseDto(
-                                wish.getCount(),
-                                new ProductResponseDto(
-                                        wish.getProductEntity().toDomain()
-                                )
-                        )
-                ).toList();
+    public List<WishResponseDto> getWishList(long memberId, Pageable pageable) {
+        return wishRepository.findByMemberEntityId(memberId, pageable)
+                .map(
+                    wishEntity ->
+                            new WishResponseDto(
+                                    wishEntity.getCount(),
+                                    new ProductResponseDto(
+                                            wishEntity.getProductEntity().toDomain()
+                                    )
+                            )
+                )
+                .toList();
     }
 }
