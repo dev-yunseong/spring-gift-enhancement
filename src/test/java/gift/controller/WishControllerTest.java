@@ -29,6 +29,7 @@ public class WishControllerTest {
 
     @Test
     void Wish_추가_테스트() {
+        postProduct(new ProductRequestDto("name", 123, "path"));
         String token = registerMemberAndGetToken("demo1@email", "asdf");
 
         ResponseEntity<String> responseEntity = addWish(token, 1L, 234);
@@ -38,6 +39,7 @@ public class WishControllerTest {
 
     @Test
     void Wish_수정_테스트() {
+        postProduct(new ProductRequestDto("name", 123, "path"));
         String token = registerMemberAndGetToken("demo2@email", "asdf");
         addWish(token, 1L, 123);
 
@@ -48,6 +50,7 @@ public class WishControllerTest {
 
     @Test
     void Wish_GetList_테스트() {
+        postProduct(new ProductRequestDto("name", 123, "path"));
         String token = registerMemberAndGetToken("demo3@email", "asdf");
         addWish(token, 1L, 123);
 
@@ -70,6 +73,15 @@ public class WishControllerTest {
 
         return registerResponseEntity.getBody().token();
     }
+
+    private ResponseEntity<String> postProduct(ProductRequestDto productRequestDto) {
+        return restClient.post()
+                .uri(baseUrl + "/api/products")
+                .body(productRequestDto)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
 
     private ResponseEntity<String> addWish(String token, Long productId, int count) {
         return restClient.post()
