@@ -6,6 +6,7 @@ import gift.dto.ProductStatusPatchRequestDto;
 import gift.domain.Product;
 import gift.entity.ProductEntity;
 import gift.repository.ProductRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,9 +44,8 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponseDto> findApprovedProducts() {
-        return productRepository.findAll().stream()
-                .filter(ProductEntity::isApproved)
+    public List<ProductResponseDto> findApprovedProducts(Pageable pageable) {
+        return productRepository.findByStatus(Product.Status.APPROVED, pageable).stream()
                 .map(ProductResponseDto::new)
                 .toList();
     }

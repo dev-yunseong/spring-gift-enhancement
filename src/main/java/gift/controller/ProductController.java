@@ -3,13 +3,13 @@ package gift.controller;
 import gift.dto.ProductRequestDto;
 import gift.dto.ProductResponseDto;
 import gift.dto.ProductStatusPatchRequestDto;
+import gift.dto.ProductsResponseDto;
 import gift.service.ProductService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -44,8 +44,10 @@ public class ProductController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<ProductResponseDto>> getApprovedProducts() {
-        return ResponseEntity.ok(productService.findApprovedProducts());
+    public ResponseEntity<ProductsResponseDto> getApprovedProducts(Pageable pageable) {
+        return ResponseEntity.ok(
+                new ProductsResponseDto(productService.findApprovedProducts(pageable))
+        );
     }
 
     @GetMapping("/{productId}")

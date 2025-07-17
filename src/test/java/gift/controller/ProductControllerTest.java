@@ -3,6 +3,7 @@ package gift.controller;
 import gift.dto.ProductRequestDto;
 import gift.dto.ProductResponseDto;
 import gift.domain.Product;
+import gift.dto.ProductsResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -11,6 +12,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
@@ -22,6 +24,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -116,6 +119,29 @@ public class ProductControllerTest {
                 });
 
         assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void Pagenation_Test() {
+        for (int i = 0; i < 10; i++) {
+            postProduct(new ProductRequestDto("name" + i, 123, "path"));
+        }
+
+        ResponseEntity<ProductsResponseDto> responseEntity = getProducts(PageRequest.of(0, 5));
+
+        assertAll(
+                () -> assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK),
+                () ->assertThat(responseEntity.getBody().products().size()).isEqualTo(5)
+        );
+    }
+
+    private ResponseEntity<ProductsResponseDto> getProducts(PageRequest pageRequest) {
+        return client.get()
+                .uri(baseUrl + "/api/products?"
+                + "page=" + pageRequest.getPageNumber() + "&"
+                + "size=" + pageRequest.getPageSize())
+                .retrieve()
+                .toEntity(ProductsResponseDto.class);
     }
 
     private ResponseEntity<String> postProduct(ProductRequestDto productRequestDto) {

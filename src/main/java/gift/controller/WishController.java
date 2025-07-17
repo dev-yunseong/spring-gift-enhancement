@@ -5,6 +5,7 @@ import gift.dto.WishRequestDto;
 import gift.dto.WishesResponseDto;
 import gift.domain.Member;
 import gift.service.WishService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +21,10 @@ public class WishController {
     }
 
     @GetMapping("")
-    public ResponseEntity<WishesResponseDto> getWishList(@LoginMember Member member) {
+    public ResponseEntity<WishesResponseDto> getWishList(@LoginMember Member member, Pageable pageable) {
         return ResponseEntity.ok(
             new WishesResponseDto(
-                    wishService.getWishList(member.getId())
+                    wishService.getWishList(member.getId(), pageable)
             )
         );
     }

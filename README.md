@@ -1,7 +1,11 @@
 # spring-gift-enhancement
-> 엔티티 매핑
+> 페이지네이션
 ## 기능 요구 사항
-* JPA를 사용하도록 수정
-  * Entity 구현
-  * JpaRepository로 수정
-  * Service 제대로 작동하도록 수정
+* Pagenation 적용
+  * Products에 적용
+  * Wishes에 적용
+  * 테스트 작성
+* 리뷰 반영 & 수정
+  * Product Approved filter을 memory에서 하는 것이 아닌 dbms로 넘김
+  * Wishes 받아 올 때, 1+N 문제 해결
+  * ProductsResponseDto 생성
