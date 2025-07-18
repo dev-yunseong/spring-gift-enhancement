@@ -3,6 +3,8 @@ package gift.entity;
 import gift.domain.Product;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "products")
 public class ProductEntity {
@@ -38,6 +40,13 @@ public class ProductEntity {
 
     @Column(nullable = false)
     private Product.Status status;
+
+    @OneToMany(mappedBy = "productEntity")
+    private List<OptionEntity> optionEntities;
+
+    public List<OptionEntity> getOptionEntities() {
+        return optionEntities;
+    }
 
     public Product.Status getStatus() {
         return status;
