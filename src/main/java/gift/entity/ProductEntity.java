@@ -38,6 +38,7 @@ public class ProductEntity {
         return imageUrl;
     }
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Product.Status status;
 
