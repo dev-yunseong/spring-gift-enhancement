@@ -47,8 +47,6 @@ public class OptionService {
 
         OptionEntity optionEntity = new OptionEntity(optionRequestDto.name(), optionRequestDto.quantity(), productEntity);
         optionRepository.save(optionEntity);
-
-        // TODO - Product의 option의 수가 0이었으면 Approved 로 돌리는 심사 진행
     }
 
     public void subtractOptionQuantity(long optionId, int quantity) {
@@ -57,8 +55,6 @@ public class OptionService {
 
         Option option = optionEntity.toDomain();
 
-        int resultQuantity = option.subtractQuantity(quantity);
-
-        // TODO - Product에서 option의 수가 0이면 Pending으로 돌림
+        option.subtractQuantity(quantity);
     }
 }
