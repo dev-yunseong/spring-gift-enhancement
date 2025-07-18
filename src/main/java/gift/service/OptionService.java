@@ -55,6 +55,10 @@ public class OptionService {
 
         Option option = optionEntity.toDomain();
 
-        option.subtractQuantity(quantity);
+        int resultQuantity = option.subtractQuantity(quantity);
+
+        if (resultQuantity == 0) {
+            optionRepository.deleteById(optionId);
+        }
     }
 }
