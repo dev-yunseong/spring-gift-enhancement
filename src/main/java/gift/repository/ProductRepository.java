@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     Page<ProductEntity> findByStatus(Product.Status status, Pageable pageable);
+    Page<ProductEntity> findAllByStatus(Product.Status status, Pageable pageable);
 }
